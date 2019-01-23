@@ -9,19 +9,22 @@ char clientBuffer[128];
 
 int main() {
   uint32_t i;
+  int c;
 
   pc.printf("Serial Client\n");
 
   while (true) {
-    if (client.putc('\xA5') == '\xA5') {
-      if (client.putc('\x50') == '\x50') {
-      }
-      for (i=0; i<20; i++) {
-        clientBuffer[i] = client.getc();
-      }
-      clientBuffer[20] = '\n';
-      pc.printf("%s", clientBuffer);
+    c = client.putc('\xA5');
+    assert(c == '\xA5');
+    c = client.putc('\x50');
+    assert(c == '\x50');
+
+    for (i=0; i<20; i++) {
+      clientBuffer[i] = client.getc();
     }
+    
+    clientBuffer[20] = '\n';
+    pc.printf("%s", clientBuffer);
     wait_ms(2);
   }
 }
