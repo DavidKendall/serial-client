@@ -16,8 +16,12 @@ int main() {
   pc.printf("Serial Client\n");
 
   while (true) {
-    nBytes = client.write(command, sizeof(command));
-    assert(nBytes == sizeof(command));
+    while (! client.FileHandle::readable()) {
+      while (! client.FileHandle::writable()) {
+      }
+      nBytes = client.write(command, sizeof(command));
+      assert(nBytes == sizeof(command));
+    }
 
     nReceived = 0;
     while (nReceived < 20) {
