@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include <assert.h>
 
-Serial client(D1, D0, 115200);
+RawSerial client(D1, D0, 115200);
 Serial pc(USBTX, USBRX, 115200);
 
 char clientBuffer[128];
