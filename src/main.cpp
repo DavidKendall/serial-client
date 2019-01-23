@@ -7,11 +7,10 @@ Serial pc(USBTX, USBRX, 115200);
 
 char command[] = {'\xA5', '\x50'};
 char clientBuffer[128];
-int nReceived;
 
 int main() {
-  uint32_t i;
   ssize_t nBytes;
+  int nReceived;
 
   pc.printf("Serial Client\n");
 
