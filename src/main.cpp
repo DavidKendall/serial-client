@@ -2,25 +2,27 @@
 #include <stdbool.h>
 #include <assert.h>
 
-RawSerial client(D1, D0, 115200);
+UARTSerial client(D1, D0, 115200);
 Serial pc(USBTX, USBRX, 115200);
 
+char command[] = {'\xA5', '\x50'};
 char clientBuffer[128];
+int nReceived;
 
 int main() {
   uint32_t i;
-  int c;
+  ssize_t nBytes;
 
   pc.printf("Serial Client\n");
 
   while (true) {
-    c = client.putc('\xA5');
-    assert(c == '\xA5');
-    c = client.putc('\x50');
-    assert(c == '\x50');
+    nBytes = client.write(command, sizeof(command));
+    assert(nBytes == sizeof(command));
 
-    for (i=0; i<20; i++) {
-      clientBuffer[i] = client.getc();
+    nReceived = 0;
+    while (nReceived < 20) {
+      nBytes = client.read(&clientBuffer[nReceived], 20 - nReceived);
+      nReceived += nBytes;
     }
     
     clientBuffer[20] = '\n';
