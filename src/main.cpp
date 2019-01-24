@@ -5,27 +5,45 @@
 RawSerial client(D1, D0, 115200);
 Serial pc(USBTX, USBRX, 115200);
 
-char clientBuffer[128];
+uint8_t clientBuffer[128];
+volatile bool messageReceived;
+
+void serialCbHandler(int events);
 
 int main() {
-  uint32_t i;
+  bool messagePending;
+  event_callback_t serialCb = serialCbHandler;
   int c;
+  int result;
 
   pc.printf("Serial Client\n");
 
   while (true) {
-    c = client.putc('\xA5');
-    assert(c == '\xA5');
-    c = client.putc('\x50');
-    assert(c == '\x50');
-
-    for (i=0; i<20; i++) {
-      clientBuffer[i] = client.getc();
+    messagePending = false;
+    messageReceived = false;
+    while (! messageReceived) {
+      while (! client.writeable()) {
+      }
+      c = client.putc('\xA5');
+      assert(c == '\xA5');
+      while (! client.writeable()) {
+      }
+      c = client.putc('\x50');
+      assert(c == '\x50');
+      if (! messagePending) {
+        //result = client.read(&clientBuffer[0], 20, serialCb, SERIAL_EVENT_RX_COMPLETE, '\xFF');
+        result = client.read(&clientBuffer[0], 20, serialCb);
+        assert(result >= 0);
+        messagePending = true;
+      }
+      wait_ms(3);
     }
-    
-    clientBuffer[20] = '\n';
-    pc.printf("%s", clientBuffer);
+
+    pc.printf("%s\n", clientBuffer);
     wait_ms(2);
   }
 }
 
+void serialCbHandler(int events) {
+  messageReceived = true;
+}
